@@ -15,6 +15,10 @@ def get_adapters() -> BluetoothAdapters:
         from .macos import MacOSAdapters
 
         return MacOSAdapters()
+    if platform.system() == "FreeBSD":
+        from .freebsd import FreeBSDAdapters
+
+        return FreeBSDAdapters()
     from .linux import LinuxAdapters
 
     return LinuxAdapters()

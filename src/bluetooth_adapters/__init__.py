@@ -1,4 +1,4 @@
-__version__ = "0.16.0"
+__version__ = "0.16.1"
 
 
 from platform import system
@@ -7,12 +7,13 @@ from .adapters import BluetoothAdapters
 from .const import (
     DEFAULT_ADDRESS,
     DEFAULT_CONNECTION_SLOTS,
+    FREEBSD_DEFAULT_BLUETOOTH_ADAPTER,
     MACOS_DEFAULT_BLUETOOTH_ADAPTER,
     UNIX_DEFAULT_BLUETOOTH_ADAPTER,
     WINDOWS_DEFAULT_BLUETOOTH_ADAPTER,
 )
 
-if system() != "Windows":
+if system() != "Windows" and system() != "FreeBSD":
     from .dbus import (
         BlueZDBusObjects,
         get_bluetooth_adapter_details,
@@ -42,7 +43,12 @@ from .storage import (
     expire_stale_scanner_discovered_device_advertisement_data,
 )
 from .systems import get_adapters
-from .systems.linux_hci import get_adapters_from_hci
+
+if system() == "Linux":
+    from .systems.linux_hci import get_adapters_from_hci
+elif system() == "FreeBSD":
+    from .systems.freebsd_hci import get_adapters_from_hci
+
 from .util import adapter_human_name, adapter_model, adapter_unique_name
 
 __all__ = [
@@ -77,6 +83,7 @@ __all__ = [
     "WINDOWS_DEFAULT_BLUETOOTH_ADAPTER",
     "MACOS_DEFAULT_BLUETOOTH_ADAPTER",
     "UNIX_DEFAULT_BLUETOOTH_ADAPTER",
+    "FREEBSD_DEFAULT_BLUETOOTH_ADAPTER",
     "DEFAULT_ADDRESS",
     "DEFAULT_CONNECTION_SLOTS",
 ]
