@@ -1,20 +1,37 @@
 import asyncio
 import time
+from platform import system
 from typing import Any
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
-from dbus_fast import MessageType
+
+try:
+    from dbus_fast import MessageType
+except (AttributeError, ImportError):
+    MessageType = None
+    # dbus_fast is not available on Windows
 from usb_devices import BluetoothDevice, USBDevice
 
 import bluetooth_adapters.dbus as bluetooth_adapters_dbus
+
+if system() != "Windows":
+    from bluetooth_adapters import (
+        BlueZDBusObjects,
+        get_bluetooth_adapters,
+        get_dbus_managed_objects,
+    )
+else:
+    BlueZDBusObjects = None  # type: ignore
+    get_bluetooth_adapters = None  # type: ignore
+    get_dbus_managed_objects = None  # type: ignore
+
 from bluetooth_adapters import (
     DEFAULT_ADDRESS,
     AdapterDetails,
     AdvertisementHistory,
-    BlueZDBusObjects,
     DiscoveredDeviceAdvertisementData,
     DiscoveredDeviceAdvertisementDataDict,
     adapter_human_name,
@@ -24,13 +41,15 @@ from bluetooth_adapters import (
     discovered_device_advertisement_data_to_dict,
     expire_stale_scanner_discovered_device_advertisement_data,
     get_adapters,
-    get_bluetooth_adapters,
-    get_dbus_managed_objects,
     load_history_from_managed_objects,
 )
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_file_not_found():
     """Test get_bluetooth_adapters()."""
 
@@ -43,6 +62,10 @@ async def test_get_bluetooth_adapters_file_not_found():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connection_refused():
     """Test get_bluetooth_adapters with connection refused."""
 
@@ -55,6 +78,10 @@ async def test_get_bluetooth_adapters_connection_refused():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_refused_docker():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -73,6 +100,10 @@ async def test_get_bluetooth_adapters_connect_refused_docker():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_fails():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -89,6 +120,10 @@ async def test_get_bluetooth_adapters_connect_fails():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_fails_docker():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -107,6 +142,10 @@ async def test_get_bluetooth_adapters_connect_fails_docker():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_broken_pipe():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -123,6 +162,10 @@ async def test_get_bluetooth_adapters_connect_broken_pipe():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_broken_pipe_docker():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -141,6 +184,10 @@ async def test_get_bluetooth_adapters_connect_broken_pipe_docker():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_connect_eof_error():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -159,6 +206,10 @@ async def test_get_bluetooth_adapters_connect_eof_error():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_no_call_return():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -175,6 +226,10 @@ async def test_get_bluetooth_adapters_no_call_return():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_times_out():
     async def _stall(*args: Any) -> None:
         await asyncio.sleep(10)
@@ -196,6 +251,10 @@ async def test_get_bluetooth_adapters_times_out():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_no_wrong_return():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -223,6 +282,10 @@ async def test_get_bluetooth_adapters_no_wrong_return():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_bluetooth_adapters_correct_return_valid_message():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -251,6 +314,10 @@ async def test_get_bluetooth_adapters_correct_return_valid_message():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_dbus_managed_objects():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -284,6 +351,10 @@ async def test_get_dbus_managed_objects():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_BlueZDBusObjects():
     class MockMessageBus:
         def __init__(self, *args, **kwargs):
@@ -379,6 +450,10 @@ async def test_BlueZDBusObjects():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_adapters_linux():
     """Test get_adapters."""
 
@@ -438,6 +513,92 @@ async def test_get_adapters_linux():
                                     "org.freedesktop.DBus.Properties": {},
                                 },
                                 "/org/bluez/hci1": {},
+                                "/org/bluez/hci2": {
+                                    "org.bluez.Adapter1": {
+                                        "Address": "00:00:00:00:00:00",
+                                        "AddressType": "public",
+                                        "Alias": "homeassistant",
+                                        "Class": 2883584,
+                                        "Discoverable": False,
+                                        "DiscoverableTimeout": 180,
+                                        "Discovering": True,
+                                        "Modalias": "usb:v1D6Bp0246d053F",
+                                        "Name": "homeassistant",
+                                        "Pairable": False,
+                                        "PairableTimeout": 0,
+                                        "Powered": True,
+                                        "Roles": ["central", "peripheral"],
+                                        "UUIDs": [
+                                            "0000110e-0000-1000-8000-00805f9b34fb",
+                                            "0000110a-0000-1000-8000-00805f9b34fb",
+                                            "00001200-0000-1000-8000-00805f9b34fb",
+                                            "0000110b-0000-1000-8000-00805f9b34fb",
+                                            "00001108-0000-1000-8000-00805f9b34fb",
+                                            "0000110c-0000-1000-8000-00805f9b34fb",
+                                            "00001800-0000-1000-8000-00805f9b34fb",
+                                            "00001801-0000-1000-8000-00805f9b34fb",
+                                            "0000180a-0000-1000-8000-00805f9b34fb",
+                                            "00001112-0000-1000-8000-00805f9b34fb",
+                                        ],
+                                    },
+                                    "org.bluez.GattManager1": {},
+                                    "org.bluez.LEAdvertisingManager1": {
+                                        "ActiveInstances": 0,
+                                        "SupportedIncludes": [
+                                            "tx-power",
+                                            "appearance",
+                                            "local-name",
+                                        ],
+                                        "SupportedInstances": 5,
+                                    },
+                                    "org.bluez.Media1": {},
+                                    "org.bluez.NetworkServer1": {},
+                                    "org.freedesktop.DBus.Introspectable": {},
+                                    "org.freedesktop.DBus.Properties": {},
+                                },
+                                "/org/bluez/hci3": {
+                                    "org.bluez.Adapter1": {
+                                        "Address": "00:1A:7D:DA:71:05",
+                                        "AddressType": "public",
+                                        "Alias": "homeassistant",
+                                        "Class": 2883584,
+                                        "Discoverable": False,
+                                        "DiscoverableTimeout": 180,
+                                        "Discovering": True,
+                                        "Modalias": "usb:v1D6Bp0246d053F",
+                                        "Name": "homeassistant",
+                                        "Pairable": False,
+                                        "PairableTimeout": 0,
+                                        "Powered": True,
+                                        "Roles": ["central", "peripheral"],
+                                        "UUIDs": [
+                                            "0000110e-0000-1000-8000-00805f9b34fb",
+                                            "0000110a-0000-1000-8000-00805f9b34fb",
+                                            "00001200-0000-1000-8000-00805f9b34fb",
+                                            "0000110b-0000-1000-8000-00805f9b34fb",
+                                            "00001108-0000-1000-8000-00805f9b34fb",
+                                            "0000110c-0000-1000-8000-00805f9b34fb",
+                                            "00001800-0000-1000-8000-00805f9b34fb",
+                                            "00001801-0000-1000-8000-00805f9b34fb",
+                                            "0000180a-0000-1000-8000-00805f9b34fb",
+                                            "00001112-0000-1000-8000-00805f9b34fb",
+                                        ],
+                                    },
+                                    "org.bluez.GattManager1": {},
+                                    "org.bluez.LEAdvertisingManager1": {
+                                        "ActiveInstances": 0,
+                                        "SupportedIncludes": [
+                                            "tx-power",
+                                            "appearance",
+                                            "local-name",
+                                        ],
+                                        "SupportedInstances": 5,
+                                    },
+                                    "org.bluez.Media1": {},
+                                    "org.bluez.NetworkServer1": {},
+                                    "org.freedesktop.DBus.Introspectable": {},
+                                    "org.freedesktop.DBus.Properties": {},
+                                },
                                 "/org/bluez/hci1/any": {},
                                 "/org/bluez/hci0/dev_54_D2_72_AB_35_95": {
                                     "org.freedesktop.DBus.Introspectable": {},
@@ -525,21 +686,39 @@ async def test_get_adapters_linux():
                 device=ANY, advertisement_data=ANY, source="hci0"
             )
         }
+        # hci0 should show
+        # hci1 is empty so it should not be in the list
+        # hci2 should not show because it has a 00:00:00:00:00:00 address
+        # hci3 should show
         assert bluetooth_adapters.adapters == {
             "hci0": {
                 "address": "00:1A:7D:DA:71:04",
-                "manufacturer": "XTech",
-                "product": "Bluetooth 4.0 USB Adapter",
-                "vendor_id": "0a12",
-                "product_id": "0001",
                 "hw_version": "usb:v1D6Bp0246d053F",
+                "manufacturer": "XTech",
                 "passive_scan": False,
+                "product": "Bluetooth 4.0 USB Adapter",
+                "product_id": "0001",
                 "sw_version": "homeassistant",
+                "vendor_id": "0a12",
+            },
+            "hci3": {
+                "address": "00:1A:7D:DA:71:05",
+                "hw_version": "usb:v1D6Bp0246d053F",
+                "manufacturer": "XTech",
+                "passive_scan": False,
+                "product": "Bluetooth 4.0 USB Adapter",
+                "product_id": "0001",
+                "sw_version": "homeassistant",
+                "vendor_id": "0a12",
             },
         }
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 async def test_get_adapters_linux_no_usb_device():
     """Test get_adapters."""
 
@@ -923,6 +1102,10 @@ def test_discovered_device_advertisement_data_from_dict():
     )
 
 
+@pytest.mark.skipif(
+    MessageType is None or get_dbus_managed_objects is None,
+    reason="dbus_fast is not available",
+)
 def test_expire_stale_scanner_discovered_device_advertisement_data():
     """Test expire_stale_scanner_discovered_device_advertisement_data."""
     now = time.time()
