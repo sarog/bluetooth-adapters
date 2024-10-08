@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bluetooth-adapters"
-version = "0.19.4"
+version = "0.20.0"
 description = "Tools to enumerate and find Bluetooth Adapters"
 authors = ["J. Nick Koston <nick@koston.org>"]
 readme = "README.md"
@@ -23,7 +23,7 @@ packages = [
 "Changelog" = "https://github.com/bluetooth-devices/bluetooth-adapters/blob/main/CHANGELOG.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.9,<3.14"
 
 # Documentation Dependencies
 Sphinx = {version = ">=5,<8", optional = true}
