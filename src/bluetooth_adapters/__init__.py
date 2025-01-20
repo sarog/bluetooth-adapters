@@ -1,4 +1,4 @@
-__version__ = "0.20.2"
+__version__ = "0.21.0"
 
 
 from platform import system
@@ -22,6 +22,7 @@ if system() != "Windows" and system() != "FreeBSD":
     )
 
 from .history import AdvertisementHistory, load_history_from_managed_objects
+from .mac_lookup import get_manufacturer_from_mac
 from .models import (
     ADAPTER_ADDRESS,
     ADAPTER_CONNECTION_SLOTS,
@@ -52,6 +53,7 @@ elif system() == "FreeBSD":
 from .util import adapter_human_name, adapter_model, adapter_unique_name
 
 __all__ = [
+    "get_manufacturer_from_mac",
     "AdvertisementHistory",
     "BluetoothAdapters",
     "BlueZDBusObjects",

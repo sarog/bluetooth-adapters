@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bluetooth-adapters"
-version = "0.20.2"
+version = "0.21.0"
 description = "Tools to enumerate and find Bluetooth Adapters"
 authors = ["J. Nick Koston <nick@koston.org>"]
 readme = "README.md"
@@ -46,7 +46,7 @@ docs = [
 [tool.poetry.dev-dependencies]
 pytest = "^8.3"
 pytest-cov = "^6.0"
-pytest-asyncio = "^0.24.0"
+pytest-asyncio = "^0.25.2"
 
 [tool.semantic_release]
 branch = "main"
