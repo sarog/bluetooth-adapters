@@ -1,4 +1,4 @@
-__version__ = "0.21.4"
+__version__ = "2.0.0"
 
 
 from platform import system
